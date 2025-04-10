@@ -1,6 +1,6 @@
-
 def main():
-    # Ваш код здесь
+    from audio_server import run_server
+    run_server()
     pass
 
 if __name__ == "__main__":
