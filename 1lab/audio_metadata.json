@@ -1,1 +1,17 @@
-{}
+{
+    "enemy_lost_point.mp3": {
+        "format": "mp3",
+        "duration": 1.584,
+        "size": 34896
+    },
+    "radio1.mp3": {
+        "format": "mp3",
+        "duration": 39.7925,
+        "size": 637704
+    },
+    "Лист Microsoft Excel.xlsx": {
+        "format": "unknown",
+        "duration": 0.0,
+        "size": 6598
+    }
+}
