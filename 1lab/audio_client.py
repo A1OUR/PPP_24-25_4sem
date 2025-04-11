@@ -31,7 +31,7 @@ def run_client():
                 f = open("out.mp3", 'wb')
                 f.write(actual_data)
                 f.close()
-                print(f"ВСЁ ГУД")
+                print(f"Фрагмент получен")
             client.close()
         except ConnectionResetError:
             print("Сервер разорвал подключение, завершение работы...") 
