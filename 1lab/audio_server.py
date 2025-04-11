@@ -8,10 +8,10 @@ def update_metadata():
         filepath = os.path.join(FILES_PATH, filename)
         if os.path.isfile(filepath):
             try:
-                info = mediainfo(filepath)
+                # info = mediainfo(filepath)
                 metadata[filename] = {
-                    'format': info.get('format_name', 'unknown'),
-                    'duration': float(info.get('duration', 0)),
+                    # 'format': info.get('format_name', 'unknown'),
+                    # 'duration': float(info.get('duration', 0)),
                     'size': os.path.getsize(filepath)
                 }
             except Exception as e:
@@ -20,8 +20,6 @@ def update_metadata():
     
     with open(METADATA_FILE, 'w') as f:
         json.dump(metadata, f, indent=4, ensure_ascii=False)
-    
-    # logging.info("Audio metadata updated")
     
 def get_audio_list():
     update_metadata()
@@ -116,7 +114,7 @@ def client_thread (con):
                                     message = "Неправильный формат запроса. Введите help для вывода всех команд"
                                     send_message(con,message)
                             else:
-                                send_audio(con,file_name)
+                                send_audio(con,file_name, file_extension)
                     else:
                         message = "Нет такого файла"
                         send_message(con,message)
