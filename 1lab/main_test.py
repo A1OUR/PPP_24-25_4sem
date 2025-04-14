@@ -1,12 +1,6 @@
-def main():
-    try:
-        from audio_client import run_client
-        run_client()
-    except ConnectionRefusedError:
-        from audio_server import run_server
-        run_server()
-    pass
+from common_stuff import *
 
-if __name__ == "__main__":
-    main()
+song = AudioSegment.from_file('out.mp3').export(format='mp3').read()
+s=song[-212134:'dsdsfdfsd1']
+
 
