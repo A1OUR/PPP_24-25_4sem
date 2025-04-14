@@ -18,6 +18,7 @@ logging.basicConfig(
     handlers=handlers
 )
 
+
 def update_metadata():
     metadata = {}
     logging.info("Updating metadata")
