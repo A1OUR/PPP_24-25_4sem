@@ -202,6 +202,7 @@ def client_thread(con):
                 send_message(con, message)
     except:
         logging.info("Client disconnected")
+    logging.info("Client disconnected")
 
 
 def run_server():
