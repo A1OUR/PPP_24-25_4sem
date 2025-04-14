@@ -1,13 +1,26 @@
 from _thread import start_new_thread
 from common_stuff import *
 import json
+import logging
 from pydub import AudioSegment
+from tempfile import mktemp
+import sys
 METADATA_FILE = "audio_metadata.json"
 FILES_PATH = os.getcwd()+"\\audio_files\\"
 
+file_handler = logging.FileHandler(filename='audio_server.log')
+stdout_handler = logging.StreamHandler(stream=sys.stdout)
+handlers = [file_handler, stdout_handler]
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='[%(asctime)s] %(name)s - %(message)s',
+    handlers=handlers
+)
+
 def update_metadata():
     metadata = {}
-
+    logging.info("Updating metadata")
     for filename in os.listdir(FILES_PATH):
         filepath = os.path.join(FILES_PATH, filename)
         if os.path.isfile(filepath):
@@ -19,7 +32,7 @@ def update_metadata():
                     'Размер': f'{round(os.path.getsize(filepath) / 1024, 2)} KB'
                 }
             except Exception as e:
-                print(f"Error processing {filename}: {e}")
+                logging.warning(f"Error processing: {filename}")
 
     with open(METADATA_FILE, 'w') as f:
         json.dump(metadata, f, indent=4, ensure_ascii=False)
@@ -64,6 +77,7 @@ def parse_input(data):
 
 
 def send_message(con, message):
+    logging.info(f"Sending message to client: {message}")
     bit = 0
     response = struct.pack('B', bit)
     con.sendall(response)
@@ -98,7 +112,14 @@ def send_audio(con, file_name, file_extension, start=None, end=None):
             message = "Неправильный временной отрезок"
             send_message(con, message)
             return
-    song = song.export(format=file_extension[1:]).read()
+    else:
+        start = 'start'
+        end = 'end'
+    logging.info(f"Sending audio to client: {file_name}, from {start} to {end}")
+    temp_file = mktemp(suffix=file_extension)
+    song.export(temp_file, format=file_extension[1:])
+    with open(temp_file, 'rb') as f:
+        song = f.read()
     bit = 1
     response = struct.pack('B', bit)
     con.sendall(response)
@@ -109,6 +130,7 @@ def send_audio(con, file_name, file_extension, start=None, end=None):
 
 
 def client_thread(con):
+    logging.info(f"Client connected")
     try:
         size = con.recv(4)
         size = struct.unpack('!I', size)[0]
@@ -121,7 +143,7 @@ def client_thread(con):
             actual_data.extend(chunk)
             received += len(chunk)
         data = actual_data.decode('utf-8')
-        print(data, "sendme", data == "sendme")
+        logging.info(f"Trying to parse client input: {data}")
         args = parse_input(data)
         if not args:
             message = "Неправильный формат запроса. Введите help для вывода всех команд"
@@ -177,8 +199,8 @@ def client_thread(con):
             else:
                 message = "Неправильный формат запроса. Введите help для вывода всех команд"
                 send_message(con, message)
-    except ConnectionResetError:
-        print("Клиент отключился")
+    except:
+        logging.info("Client disconnected")
 
 
 def run_server():
@@ -188,8 +210,7 @@ def run_server():
     hostname = socket.gethostname()
     server.bind((hostname, PORT))
     server.listen()
-    print("Server running")
-    # print(get_audio_list())
+    logging.info("Server running")
     while True:
         client, _ = server.accept()
         start_new_thread(client_thread, (client,))
