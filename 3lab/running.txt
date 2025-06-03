@@ -1,0 +1,6 @@
+cd 3lab\test_2  
+python -m uvicorn main:app --reload    
+cd 3lab\test_2  
+python -m celery -A tasks.celery_app worker --loglevel=info 
+cd 3lab\test_2  
+python client.py
