@@ -1,6 +1,7 @@
+docker run -p 6379:6379 redis
 cd 3lab\test_2  
-python -m uvicorn main:app --reload    
+python -m uvicorn main:app --reload 
 cd 3lab\test_2  
-python -m celery -A tasks.celery_app worker --loglevel=info 
+python -m celery -A celery_worker worker --loglevel=info --pool=solo 
 cd 3lab\test_2  
 python client.py

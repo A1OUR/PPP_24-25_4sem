@@ -1,0 +1,57 @@
+# регаемся
+$body = @{
+    email    = "user@example2.com"
+    password = "securepassword123"
+} | ConvertTo-Json
+
+Invoke-WebRequest -Uri "http://localhost:8000/api/auth/sign-up/" `
+                  -Method POST `
+                  -ContentType "application/json" `
+                  -Body $body
+
+
+# Получаем токен (если ещё не сделано)
+$token = (Invoke-WebRequest -Uri "http://localhost:8000/api/auth/login/" -Method POST -ContentType "application/json" -Body '{"email":"user@example2.com","password":"securepassword123"}').Content | ConvertFrom-Json | Select -Expand access_token
+
+# Шифруем текст
+$response = Invoke-WebRequest `
+    -Uri "http://localhost:8000/api/encryption/encode" `
+    -Method POST `
+    -Headers @{ Authorization = "Bearer $token" } `
+    -ContentType "application/json" `
+    -Body '{"text":"Text for encrypt","key":"my-secret-key"}'
+
+# Парсим JSON через .NET сериализатор
+Add-Type -AssemblyName System.Web.Extensions
+$json = [System.Web.Script.Serialization.JavaScriptSerializer]::new()
+$json.MaxJsonLength = 67108864
+$encodedResult = $json.Deserialize($response.Content, 'System.Object')
+
+# Теперь можно использовать:
+$encoded_data   = $encodedResult["encoded_data"]
+$key            = $encodedResult["key"]
+$huffman_codes  = $encodedResult["huffman_codes"]
+$padding        = $encodedResult["padding"]
+
+# Расшифровываем
+$body = @{
+    encoded_data   = $encoded_data
+    key            = $key
+    huffman_codes  = $huffman_codes
+    padding        = $padding
+} | ConvertTo-Json -Depth 10
+
+$headers = @{
+    Authorization = "Bearer $token"
+}
+
+$response_decode = Invoke-WebRequest `
+    -Uri "http://localhost:8000/api/encryption/decode" `
+    -Method POST `
+    -Headers $headers `
+    -ContentType "application/json" `
+    -Body $body
+
+# Выводим результат
+$decoded = ($response_decode.Content | ConvertFrom-Json).decoded_text
+Write-Host "Расшифрованный текст: $decoded"
