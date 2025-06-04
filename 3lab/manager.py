@@ -18,5 +18,5 @@ class WebSocketManager:
         if task_id in self.active_connections:
             await self.active_connections[task_id].send_json(message)
 
-# Создаем глобальный экземпляр менеджера
+
 manager = WebSocketManager()

@@ -4,7 +4,8 @@ import json
 from utils import huffman_encode, huffman_decode, xor_encrypt, xor_decrypt
 import redis
 import asyncio
-from manager import manager  # Импортируем из нового файла
+import base64
+from manager import manager
 
 redis_client = redis.Redis(host='localhost', port=6379, db=0)
 

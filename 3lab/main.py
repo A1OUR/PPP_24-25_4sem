@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import Dict
 from manager import manager  # Импортируем из нового файла
 import redis
+import uuid
 
 app = FastAPI()
 
@@ -30,14 +31,14 @@ class DecodeRequest(BaseModel):
 
 @app.post("/encode")
 async def encode(request: EncodeRequest):
-    from tasks import encode_task  # Ленивый импорт
+    from tasks import encode_task
     task_id = str(uuid.uuid4())
     task = encode_task.apply_async(args=[request.text, request.key, task_id], task_id=task_id)
     return {"task_id": task_id}
 
 @app.post("/decode")
 async def decode(request: DecodeRequest):
-    from tasks import decode_task  # Ленивый импорт
+    from tasks import decode_task
     task_id = str(uuid.uuid4())
     task = decode_task.apply_async(
         args=[request.encoded_data, request.key, request.huffman_codes, request.padding, task_id],

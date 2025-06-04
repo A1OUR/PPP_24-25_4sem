@@ -77,4 +77,4 @@ def xor_encrypt(data: bytes, key: str) -> bytes:
 
 
 def xor_decrypt(data: bytes, key: str) -> bytes:
-    return xor_encrypt(data, key)  # XOR обратим
+    return xor_encrypt(data, key)
