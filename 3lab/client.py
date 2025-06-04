@@ -21,18 +21,20 @@ class ConsoleClient:
                 return response_data["task_id"]
 
     async def listen_for_updates(self, task_id: str):
-        try:
-            async with websockets.connect(f"{SERVER_URI}{task_id}") as websocket:
-                print(f"Connected to WebSocket for task {task_id}")
-                while True:
-                    message = await websocket.recv()
-                    data = json.loads(message)
-                    self.display_update(data)
+        uri = f"ws://localhost:8000/ws/{task_id}"
+        async with websockets.connect(uri) as websocket:
+            print(f"Connected to task {task_id}")
+            while True:
+                try:
+                    while True:
+                        message = await websocket.recv()
+                        data = json.loads(message)
+                        self.display_update(data)
 
-                    if data["status"] == "COMPLETED":
-                        return data["result"]
-        except Exception as e:
-            print(f"WebSocket error: {e}")
+                        if data["status"] == "COMPLETED":
+                            return data["result"]
+                except Exception as e:
+                    print(f"WebSocket error: {e}")
 
     def display_update(self, data: Dict[str, Any]):
         status = data["status"]

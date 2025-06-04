@@ -2,13 +2,13 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict
-from manager import manager  # Импортируем из нового файла
+from manager import manager
 import redis
 import uuid
 
 app = FastAPI()
 
-# Настройки CORS и Redis остаются без изменений
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

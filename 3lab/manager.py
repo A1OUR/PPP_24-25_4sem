@@ -16,7 +16,8 @@ class WebSocketManager:
 
     async def send_message(self, task_id: str, message: dict):
         if task_id in self.active_connections:
-            await self.active_connections[task_id].send_json(message)
+            websocket = self.active_connections[task_id]
+            await websocket.send_json(message)
 
 
 manager = WebSocketManager()
